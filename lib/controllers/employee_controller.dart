@@ -72,14 +72,15 @@ class EmployeeController extends GetxController {
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
       onConfirm: () {
-        Get.back();
+        Navigator.of(Get.overlayContext!).pop(); // fixed: was Get.back()
         delete(e);
       },
     );
   }
 
-  void _toast(String title, String msg, {bool error = false}) => Get.snackbar(title, msg,
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(12),
-      backgroundColor: error ? Colors.red.shade100 : Colors.green.shade100);
+  void _toast(String title, String msg, {bool error = false}) =>
+      Get.snackbar(title, msg,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+          backgroundColor: error ? Colors.red.shade100 : Colors.green.shade100);
 }

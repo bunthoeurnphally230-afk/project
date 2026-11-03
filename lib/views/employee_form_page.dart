@@ -31,7 +31,8 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
     super.dispose();
   }
 
-  String? _required(String? v, String label) => (v == null || v.trim().isEmpty) ? '$label is required' : null;
+  String? _required(String? v, String label) =>
+      (v == null || v.trim().isEmpty) ? '$label is required' : null;
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -45,7 +46,8 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
       department: _dept.text.trim(),
       image: widget.employee?.image ?? '',
     );
-    if (await c.save(e, isEdit: isEdit)) Get.back();
+    final ok = await c.save(e, isEdit: isEdit);
+    if (ok && mounted) Navigator.of(context).pop(); // fixed: was Get.back()
   }
 
   Widget _field(TextEditingController ctrl, String label, IconData icon,
@@ -73,27 +75,34 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
           child: Column(children: [
             _field(_first, 'First name', Icons.person),
             _field(_last, 'Last name', Icons.person_outline),
-            _field(_email, 'Email', Icons.email_outlined, type: TextInputType.emailAddress, validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Email is required';
-              return GetUtils.isEmail(v.trim()) ? null : 'Enter a valid email';
-            }),
-            _field(_phone, 'Phone', Icons.phone_outlined, type: TextInputType.phone, validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Phone is required';
-              return v.replaceAll(RegExp(r'[^0-9]'), '').length >= 8 ? null : 'Enter at least 8 digits';
-            }),
+            _field(_email, 'Email', Icons.email_outlined,
+                type: TextInputType.emailAddress, validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Email is required';
+                  return GetUtils.isEmail(v.trim()) ? null : 'Enter a valid email';
+                }),
+            _field(_phone, 'Phone', Icons.phone_outlined,
+                type: TextInputType.phone, validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Phone is required';
+                  return v.replaceAll(RegExp(r'[^0-9]'), '').length >= 8
+                      ? null
+                      : 'Enter at least 8 digits';
+                }),
             _field(_position, 'Position', Icons.work_outline),
             _field(_dept, 'Department', Icons.apartment),
             const SizedBox(height: 8),
             Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: FilledButton(
-                    onPressed: c.isSaving.value ? null : _submit,
-                    child: c.isSaving.value
-                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text(isEdit ? 'Update' : 'Save'),
-                  ),
-                )),
+              width: double.infinity,
+              height: 50,
+              child: FilledButton(
+                onPressed: c.isSaving.value ? null : _submit,
+                child: c.isSaving.value
+                    ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(isEdit ? 'Update' : 'Save'),
+              ),
+            )),
           ]),
         ),
       ),

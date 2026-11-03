@@ -13,6 +13,7 @@ abstract class EmployeeRepository {
 /// call the server for real ids and the controller keeps the local list in sync.
 class EmployeeRepositoryImpl implements EmployeeRepository {
   static const _maxServerId = 208;
+  static int _nextLocalId = 1000; // unique ids for records created locally
   final ApiClient _api;
   EmployeeRepositoryImpl(this._api);
 
@@ -24,8 +25,8 @@ class EmployeeRepositoryImpl implements EmployeeRepository {
 
   @override
   Future<Employee> create(Employee e) async {
-    final res = await _api.dio.post('/users/add', data: e.toJson());
-    return e.withId(res.data['id']);
+    await _api.dio.post('/users/add', data: e.toJson());
+    return e.withId(_nextLocalId++); // fixed: unique id for each new employee
   }
 
   @override
